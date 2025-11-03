@@ -1,0 +1,20 @@
+{
+  "generated_at": "2025-11-03T02:10:44.719230Z",
+  "files": [
+    {
+      "path": ".svlignore",
+      "size": 317,
+      "sha1": "486f47427a207001e8c3256d29617c38a095e632"
+    },
+    {
+      "path": "make_project_snapshot.py",
+      "size": 1863,
+      "sha1": "8aefa12f9453562d7400293660ef3dd2859ef577"
+    },
+    {
+      "path": "README.md",
+      "size": 3700,
+      "sha1": "b48d6c42b48c99f8433910dfd8717336717d2c3d"
+    }
+  ]
+}
