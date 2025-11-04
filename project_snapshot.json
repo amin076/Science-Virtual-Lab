@@ -1,20 +1,149 @@
 {
-  "generated_at": "2025-11-03T02:10:44.719230Z",
+  "generated_at": "2025-11-04T02:27:46.248026Z",
   "files": [
+    {
+      "path": ".gitignore",
+      "size": 135,
+      "sha1": "1288e0e85ab1277ae75c32d24cff74dd2623cd61",
+      "content": "# .gitignore\nnode_modules/\n__pycache__/\n.venv/\n.mypy_cache/\n.pytest_cache/\n.env\n.env.*\n*.pyc\n*.log\ndist/\nbuild/\ncoverage/\n"
+    },
     {
       "path": ".svlignore",
       "size": 317,
-      "sha1": "486f47427a207001e8c3256d29617c38a095e632"
+      "sha1": "486f47427a207001e8c3256d29617c38a095e632",
+      "content": "# Ignore heavy or auto-generated folders\nnode_modules\n.git\n.next\ndist\nbuild\ncoverage\n__pycache__\n.venv\n.mypy_cache\n.pytest_cache\n\n# Ignore environment and log files\n.env\n.env.*\n*.log\n*.sqlite\n*.pyc\n\n# Ignore system files\n.DS_Store\nThumbs.db\n\n# Ignore virtual environment folders\nvenv/\n.env/\n"
     },
     {
       "path": "make_project_snapshot.py",
-      "size": 1863,
-      "sha1": "8aefa12f9453562d7400293660ef3dd2859ef577"
+      "size": 3171,
+      "sha1": "84ae731f6f80e7ac22a4c3527206310341403d9f",
+      "content": "\"\"\"\nmake_project_snapshot.py — extended version\nCreates a JSON snapshot that includes file contents (for text/code files only),\nwhile ignoring virtual environments, IDE configs, node_modules, and build artifacts.\n\"\"\"\n\nimport os\nimport json\nimport hashlib\nfrom datetime import datetime\n\n# 🔹 Folders and files to ignore completely\nIGNORE_LIST = {\n    \".git\", \".github\", \".vscode\", \".idea\", \"__pycache__\", \".pytest_cache\",\n    \".mypy_cache\", \".venv\", \"env\", \"venv\", \"build\", \"dist\",\n    \"node_modules\", \".next\", \"coverage\", \"logs\", \"tmp\", \"temp\"\n}\n\n# 🔹 File extensions to skip (binary, large, or irrelevant)\nSKIP_EXT = {\n    \".log\", \".sqlite\", \".db\", \".pyc\", \".pyo\", \".exe\", \".dll\", \".so\", \".dylib\",\n    \".png\", \".jpg\", \".jpeg\", \".gif\", \".svg\", \".ico\", \".zip\", \".rar\", \".gz\", \".tar\",\n    \".mp3\", \".mp4\", \".avi\", \".mov\", \".pdf\", \".docx\", \".xlsx\"\n}\n\n# 🔹 Specific filenames to skip\nSKIP_FILES = {\n    \"package-lock.json\", \"yarn.lock\", \"pnpm-lock.yaml\",\n    \"Pipfile.lock\", \"poetry.lock\", \"requirements.txt\", \".env\"\n}\n\n# 🔹 Max text file size to include (in bytes)\nMAX_SIZE = 100 * 1024  # 100 KB\n\ndef hash_file(path):\n    \"\"\"Return SHA1 hash of first 256KB of a file.\"\"\"\n    h = hashlib.sha1()\n    with open(path, \"rb\") as f:\n        h.update(f.read(256 * 1024))\n    return h.hexdigest()\n\ndef read_file_content(path):\n    \"\"\"Read file content safely if text and small enough.\"\"\"\n    try:\n        if os.path.getsize(path) > MAX_SIZE:\n            return f\"[Skipped: file too large > {MAX_SIZE} bytes]\"\n        with open(path, \"r\", encoding=\"utf-8\") as f:\n            return f.read()\n    except Exception as e:\n        return f\"[Error reading file: {e}]\"\n\ndef make_snapshot(root=\".\"):\n    \"\"\"Walk project and collect metadata + content for text files.\"\"\"\n    snapshot = []\n    for dirpath, dirnames, filenames in os.walk(root):\n        # Skip ignored directories\n        dirnames[:] = [d for d in dirnames if d not in IGNORE_LIST]\n        for name in filenames:\n            if name in SKIP_FILES:\n                continue\n            ext = os.path.splitext(name)[1]\n            if ext in SKIP_EXT:\n                continue\n            path = os.path.join(dirpath, name)\n            rel_path = os.path.relpath(path, root)\n            try:\n                snapshot.append({\n                    \"path\": rel_path.replace(\"\\\\\", \"/\"),\n                    \"size\": os.path.getsize(path),\n                    \"sha1\": hash_file(path),\n                    \"content\": read_file_content(path)\n                })\n            except Exception as e:\n                snapshot.append({\n                    \"path\": rel_path.replace(\"\\\\\", \"/\"),\n                    \"error\": str(e)\n                })\n    return snapshot\n\ndef main():\n    snapshot = {\n        \"generated_at\": datetime.utcnow().isoformat() + \"Z\",\n        \"files\": make_snapshot(\".\")\n    }\n    with open(\"project_snapshot.json\", \"w\", encoding=\"utf-8\") as f:\n        json.dump(snapshot, f, indent=2, ensure_ascii=False)\n    print(\"✅ Clean and extended snapshot saved to project_snapshot.json\")\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "path": "project_snapshot.json",
+      "size": 3316,
+      "sha1": "c7fda23563ed628d502bc7127a109917f023bef2",
+      "content": "{\n  \"generated_at\": \"2025-11-04T02:14:27.876688Z\",\n  \"files\": [\n    {\n      \"path\": \".gitignore\",\n      \"size\": 135,\n      \"sha1\": \"1288e0e85ab1277ae75c32d24cff74dd2623cd61\"\n    },\n    {\n      \"path\": \".svlignore\",\n      \"size\": 317,\n      \"sha1\": \"486f47427a207001e8c3256d29617c38a095e632\"\n    },\n    {\n      \"path\": \"make_project_snapshot.py\",\n      \"size\": 1863,\n      \"sha1\": \"8aefa12f9453562d7400293660ef3dd2859ef577\"\n    },\n    {\n      \"path\": \"project_snapshot.json\",\n      \"size\": 453,\n      \"sha1\": \"d6d6b220081800e962ff71d3dd75be4cfa328f59\"\n    },\n    {\n      \"path\": \"README.md\",\n      \"size\": 3700,\n      \"sha1\": \"b48d6c42b48c99f8433910dfd8717336717d2c3d\"\n    },\n    {\n      \"path\": \"backend/.gitkeep\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"backend/app/main.py\",\n      \"size\": 699,\n      \"sha1\": \"275384e1053bd41d801c3743d496705270f130db\"\n    },\n    {\n      \"path\": \"backend/app/__init__.py\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"backend/app/api/__init__.py\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"backend/app/api/routes/health.py\",\n      \"size\": 402,\n      \"sha1\": \"6d57651da9bbafcaa43296a4d2fb0727671e5e04\"\n    },\n    {\n      \"path\": \"backend/app/api/routes/simulations.py\",\n      \"size\": 928,\n      \"sha1\": \"9455c23d97d73ea0a2d11f25a4aa42402a3ac2eb\"\n    },\n    {\n      \"path\": \"backend/app/api/routes/__init__.py\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"backend/app/core/config.py\",\n      \"size\": 808,\n      \"sha1\": \"25f04ebd60b5e0f71278eecd3e745be1dfa960aa\"\n    },\n    {\n      \"path\": \"backend/app/core/__init__.py\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"backend/app/models/simulation_models.py\",\n      \"size\": 581,\n      \"sha1\": \"c40136129ddb8b6c3b72dc8264613b1a8f2a78c9\"\n    },\n    {\n      \"path\": \"backend/app/models/__init__.py\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"backend/app/services/physics_engine.py\",\n      \"size\": 901,\n      \"sha1\": \"55f6faeb84b4d4d9e9b1a235287e620f92767a9e\"\n    },\n    {\n      \"path\": \"backend/app/services/__init__.py\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"backend/app/tests/__init__.py\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"backend/app/utils/__init__.py\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"docs/.gitkeep\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    },\n    {\n      \"path\": \"docs/api.md\",\n      \"size\": 1772,\n      \"sha1\": \"deaaa51fe47e62c48744141517be977d252ad190\"\n    },\n    {\n      \"path\": \"docs/architecture.md\",\n      \"size\": 2665,\n      \"sha1\": \"3438e64df8e041600d41d6910b8cc30950c55c18\"\n    },\n    {\n      \"path\": \"frontend/.gitkeep\",\n      \"size\": 0,\n      \"sha1\": \"da39a3ee5e6b4b0d3255bfef95601890afd80709\"\n    }\n  ]\n}"
     },
     {
       "path": "README.md",
       "size": 3700,
-      "sha1": "b48d6c42b48c99f8433910dfd8717336717d2c3d"
+      "sha1": "b48d6c42b48c99f8433910dfd8717336717d2c3d",
+      "content": "# Science Virtual Lab (MVP)\n\nA virtual science lab designed to simulate real-world scientific experiments interactively.  \nThe MVP version focuses on **basic physics simulations** such as the _simple pendulum_ and _free fall_ experiments.\n\n---\n\n## 🎯 MVP Goals\n\n- Build two fundamental experiments:\n  - **Simple Pendulum Simulation**\n  - **Free Fall Simulation**\n- Run simulations on the backend using scientific formulas.\n- Display results interactively in the frontend.\n- Allow users to register/login (Firebase Auth).\n- Save user experiment runs and results (Firestore).\n\n---\n\n## 🧱 Project Architecture (MVP)\n\n| Layer               | Technology                                      | Purpose                                |\n| ------------------- | ----------------------------------------------- | -------------------------------------- |\n| **Frontend**        | Next.js (App Router), TypeScript, MUI, Three.js | Interactive UI and visualization       |\n| **Backend**         | FastAPI (Python), NumPy, SciPy                  | Physics simulation engine              |\n| **Database / Auth** | Firebase Firestore + Authentication             | Store user data and experiment results |\n| **Deployment**      | Vercel (Frontend) + Google Cloud Run (Backend)  | Scalable, serverless hosting           |\n\n---\n\n## 📁 Repository Structure (Monorepo)\n\n---\n\n## ✅ MVP Success Criteria\n\n- User can sign up and log in.\n- User can perform both simulations.\n- Results are displayed and saved in Firestore.\n- Frontend and backend are both deployed and working together publicly.\n\n---\n\n## 🛣️ Development Roadmap (Phases)\n\n| Phase       | Description                                            |\n| ----------- | ------------------------------------------------------ |\n| **Phase 1** | Setup GitHub repo, add base docs (this file)           |\n| **Phase 2** | Add `.svlignore` and `make_project_snapshot.py`        |\n| **Phase 3** | Create backend skeleton (`/health`, `/sim/pendulum`)   |\n| **Phase 4** | Create frontend skeleton (Next.js `lab/pendulum` page) |\n| **Phase 5** | Connect Firebase Auth & Firestore                      |\n| **Phase 6** | Deploy frontend (Vercel) & backend (Cloud Run)         |\n| **Phase 7** | Add tests and basic monitoring                         |\n\n---\n\n## 🔒 Security & Environment\n\n- Use `.env` files (not committed to Git).\n- Store secrets in **Vercel Environment Variables** and **GCP Secret Manager**.\n- Enable HTTPS and restricted CORS in production.\n\n---\n\n## 🧪 Testing Strategy\n\n| Type       | Tool                         | Description                        |\n| ---------- | ---------------------------- | ---------------------------------- |\n| Unit Tests | **Pytest**, **Vitest/Jest**  | Logic testing for backend/frontend |\n| E2E Tests  | **Playwright** (later phase) | Simulate full user flows           |\n\n---\n\n## 📊 Future Enhancements (After MVP)\n\n- Real-time simulations using WebSocket.\n- Interactive 3D visualizations (Three.js / Plotly).\n- AI tutor assistant to explain results.\n- Role-based access (Teacher / Student).\n- PostgreSQL for advanced analytics.\n\n---\n\n## 🧩 Contribution Guidelines\n\nThis is a collaborative project between **Amin (Lead Developer)** and **Chatty (AI Assistant)**.\n\n- Amin: coding, repo management, deployment.\n- Chatty: architecture, documentation, reviews, code samples.\n\n---\n\n## 📄 License\n\nThe license will be added later after MVP completion.\n\n---\n\n## 📬 Contact\n\nFor questions or collaboration ideas:  \n**Author:** Amin Nazari  \n**Location:** Melbourne, Australia  \n**AI Teammate:** Chatty (GPT-5)\n"
+    },
+    {
+      "path": "backend/.gitkeep",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "backend/app/main.py",
+      "size": 699,
+      "sha1": "275384e1053bd41d801c3743d496705270f130db",
+      "content": "from fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom app.core.config import settings\nfrom app.api.routes import health, simulations\n\napp = FastAPI(\n    title=settings.PROJECT_NAME,\n    version=settings.VERSION,\n    debug=settings.DEBUG,\n)\n\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=settings.BACKEND_CORS_ORIGINS,\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],\n)\n\napp.include_router(health.router, prefix=\"/health\", tags=[\"Health\"])\napp.include_router(simulations.router, prefix=\"/sim\", tags=[\"Simulations\"])\n\n@app.get(\"/\")\ndef root():\n    return {\"message\": \"Welcome to Science Virtual Lab API\"}\n"
+    },
+    {
+      "path": "backend/app/__init__.py",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "backend/app/api/__init__.py",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "backend/app/api/routes/health.py",
+      "size": 402,
+      "sha1": "6d57651da9bbafcaa43296a4d2fb0727671e5e04",
+      "content": "\"\"\"\nhealth.py — simple route for checking server health.\nThis endpoint helps ensure the backend is alive and responding.\n\"\"\"\n\nfrom fastapi import APIRouter\n\n# Create a router instance\nrouter = APIRouter()\n\n@router.get(\"/\")\ndef health_check():\n    \"\"\"\n    Health check endpoint.\n    Returns a simple JSON response to confirm the server is running.\n    \"\"\"\n    return {\"status\": \"ok\"}\n"
+    },
+    {
+      "path": "backend/app/api/routes/simulations.py",
+      "size": 928,
+      "sha1": "9455c23d97d73ea0a2d11f25a4aa42402a3ac2eb",
+      "content": "\"\"\"\nsimulations.py — API endpoints for scientific simulations.\nCurrently supports pendulum simulation.\n\"\"\"\n\nfrom fastapi import APIRouter, HTTPException\nfrom app.models.simulation_models import PendulumInput, PendulumResult\nfrom app.services.physics_engine import simulate_pendulum\n\nrouter = APIRouter()\n\n@router.post(\"/pendulum\", response_model=PendulumResult)\ndef run_pendulum_simulation(data: PendulumInput):\n    \"\"\"\n    Simulate a simple pendulum motion.\n\n    Input:\n        - theta0_deg: initial angle in degrees (0–45)\n        - length_m: pendulum length in meters (>0)\n        - g: gravity constant (default 9.81)\n        - t: time in seconds\n\n    Returns:\n        PendulumResult: calculated theta and angular velocity.\n    \"\"\"\n    try:\n        result = simulate_pendulum(data)\n        return result\n    except Exception as e:\n        raise HTTPException(status_code=400, detail=str(e))\n"
+    },
+    {
+      "path": "backend/app/api/routes/__init__.py",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "backend/app/core/config.py",
+      "size": 808,
+      "sha1": "25f04ebd60b5e0f71278eecd3e745be1dfa960aa",
+      "content": "\"\"\"\nconfig.py — centralized configuration for Science Virtual Lab backend.\nAll environment variables and project settings are defined here.\n\"\"\"\n\nfrom pydantic_settings import BaseSettings\nfrom typing import List\n\nclass Settings(BaseSettings):\n    PROJECT_NAME: str = \"Science Virtual Lab API\"\n    VERSION: str = \"0.1.0\"\n    DEBUG: bool = True\n\n    # Allowed origins for CORS (frontend URLs)\n    BACKEND_CORS_ORIGINS: List[str] = [\"*\"]  # TODO: restrict later to Vercel domain\n\n    # Optional: Firebase or DB configs (will be used in later phases)\n    FIREBASE_PROJECT_ID: str | None = None\n    FIREBASE_API_KEY: str | None = None\n\n    class Config:\n        env_file = \".env\"  # Load environment variables from .env file\n\n# Instantiate settings for global use\nsettings = Settings()\n"
+    },
+    {
+      "path": "backend/app/core/__init__.py",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "backend/app/models/simulation_models.py",
+      "size": 581,
+      "sha1": "c40136129ddb8b6c3b72dc8264613b1a8f2a78c9",
+      "content": "\"\"\"\nsimulation_models.py — Pydantic models for simulation inputs/outputs.\n\"\"\"\n\nfrom pydantic import BaseModel, Field\n\nclass PendulumInput(BaseModel):\n    theta0_deg: float = Field(10, ge=0, le=45, description=\"Initial angle in degrees (small-angle approx).\")\n    length_m: float = Field(1.0, gt=0, description=\"Pendulum length in meters.\")\n    g: float = Field(9.81, gt=0, description=\"Gravity in m/s^2.\")\n    t: float = Field(0.0, ge=0, description=\"Time in seconds.\")\n\nclass PendulumResult(BaseModel):\n    theta_rad: float\n    theta_deg: float\n    omega: float\n"
+    },
+    {
+      "path": "backend/app/models/__init__.py",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "backend/app/services/physics_engine.py",
+      "size": 901,
+      "sha1": "55f6faeb84b4d4d9e9b1a235287e620f92767a9e",
+      "content": "\"\"\"\nphysics_engine.py — core physics simulation logic for Science Virtual Lab.\nContains mathematical functions for scientific experiments (MVP: pendulum).\n\"\"\"\n\nimport math\nfrom app.models.simulation_models import PendulumInput, PendulumResult\n\ndef simulate_pendulum(data: PendulumInput) -> PendulumResult:\n    \"\"\"\n    Simulate a simple pendulum using small-angle approximation.\n\n    Equation of motion:\n        θ(t) = θ₀ * cos(√(g/L) * t)\n\n    Args:\n        data (PendulumInput): input parameters for simulation\n\n    Returns:\n        PendulumResult: simulated results (θ in radians/degrees, ω)\n    \"\"\"\n    theta0 = math.radians(data.theta0_deg)\n    omega = math.sqrt(data.g / data.length_m)\n    theta_t = theta0 * math.cos(omega * data.t)\n\n    return PendulumResult(\n        theta_rad=theta_t,\n        theta_deg=math.degrees(theta_t),\n        omega=omega\n    )\n"
+    },
+    {
+      "path": "backend/app/services/__init__.py",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "backend/app/tests/__init__.py",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "backend/app/utils/__init__.py",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "docs/.gitkeep",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
+    },
+    {
+      "path": "docs/api.md",
+      "size": 1772,
+      "sha1": "deaaa51fe47e62c48744141517be977d252ad190",
+      "content": "# Science Virtual Lab – API Documentation\n\n## Overview\n\nThis document describes the REST API endpoints for the Science Virtual Lab backend.  \nThe backend is powered by FastAPI and exposes endpoints for simulation and system health checks.  \nAll responses are in JSON format.\n\nBase URL (development):\nhttp://localhost:8000\n\nBase URL (production - after deployment):\nhttps://science-virtual-lab-api.run.app\n\n---\n\n## Health Check\n\nEndpoint:\nGET /health\n\nDescription:\nReturns a simple response to verify the backend is running.\n\nResponse Example:\n{\n\"status\": \"ok\"\n}\n\n---\n\n## Simulation Endpoints\n\nEndpoint:\nPOST /sim/pendulum\n\nDescription:\nSimulates a simple pendulum motion based on initial parameters.\n\nRequest Body:\n{\n\"theta0_deg\": 10,\n\"length_m\": 1.0,\n\"g\": 9.81,\n\"t\": 2.0\n}\n\nResponse Example:\n{\n\"theta_rad\": 0.12345,\n\"theta_deg\": 7.069,\n\"omega\": 3.132\n}\n\nError Response Example:\n{\n\"detail\": \"Invalid parameters\"\n}\n\n---\n\nEndpoint:\nPOST /sim/freefall\n\nDescription:\nSimulates a free fall motion under gravity.\n\nRequest Body:\n{\n\"v0\": 0,\n\"t\": 2,\n\"g\": 9.81\n}\n\nResponse Example:\n{\n\"v\": 19.62,\n\"y\": 19.62\n}\n\n---\n\n## Authentication (Firebase)\n\nAuthentication is handled by Firebase Auth on the frontend.  \nEach request to protected endpoints (future versions) will include an Authorization header:\n\n    Authorization: Bearer <Firebase_ID_Token>\n\nThe backend will verify this token via Firebase Admin SDK (planned for later phases).\n\n---\n\n## Notes\n\n- All requests and responses use application/json content type.\n- Validation is handled via Pydantic models.\n- Errors follow the standard FastAPI error structure.\n\n---\n\nDocument version: 0.1 — maintained by Amin & Chatty team.\n"
+    },
+    {
+      "path": "docs/architecture.md",
+      "size": 2665,
+      "sha1": "3438e64df8e041600d41d6910b8cc30950c55c18",
+      "content": "# Science Virtual Lab – System Architecture\n\n## 🧠 Overview\n\nScience Virtual Lab is a web-based platform that allows users to simulate real-world scientific experiments interactively. The MVP focuses on basic physics experiments such as the simple pendulum and free fall.\n\n## 🧱 High-Level Architecture\n\n    User (Browser)\n         │\n         ▼\n    [ Next.js Frontend (Vercel) ]\n         │  REST API Calls (HTTPS)\n         ▼\n    [ FastAPI Backend (Cloud Run) ]\n         │\n         ▼\n    [ Firebase Firestore / Auth ]\n\n## ⚙️ Components\n\n### 1. Frontend\n\n- Built with Next.js (App Router) and TypeScript\n- Uses Material UI (MUI) for interface components\n- Three.js for 3D visualization of experiments\n- Communicates with backend through REST API calls\n\n### 2. Backend\n\n- Developed with FastAPI (Python)\n- Performs scientific calculations using NumPy and SciPy\n- Defines endpoints for simulation:\n  - /health → system status\n  - /sim/pendulum → pendulum motion calculations\n  - /sim/freefall → free fall motion calculations\n\n### 3. Database and Authentication\n\n- Firebase Firestore stores user experiment results\n- Firebase Authentication handles user login and registration (Email/Password)\n- Schema (MVP):\n  /users\n  /uid\n  name, email\n\n        /runs\n          /run_id\n            uid, experiment_type, input_params, output_results, createdAt\n\n### 4. Deployment\n\n- Frontend: Vercel (automatic build from GitHub)\n- Backend: Google Cloud Run (containerized FastAPI)\n- Database/Auth: Firebase\n- Environment Variables: stored securely in Vercel and GCP Secret Manager\n\n## 🛡️ Security Overview\n\n- All traffic over HTTPS\n- CORS restricted to Vercel domain after MVP\n- .env files excluded from version control\n- Firebase manages authentication tokens securely\n\n## 📊 Future Expansion\n\n| Area              | Planned Upgrade                          |\n| ----------------- | ---------------------------------------- |\n| Simulation Engine | WebSocket for live simulation            |\n| Database          | PostgreSQL for complex analytics         |\n| AI Integration    | LangChain or OpenAI API for explanations |\n| Roles             | Teacher/Student dashboards               |\n| Testing           | Pytest, Vitest, and Playwright (e2e)     |\n\n## 🧩 Summary\n\n- Frontend (Next.js) handles visualization and interaction.\n- Backend (FastAPI) handles physics computations and APIs.\n- Firebase handles authentication and data storage.\n- Deployment is serverless and scalable (Vercel + Cloud Run).\n\n_Document version: 0.1 — last updated by Amin & Chatty team._\n"
+    },
+    {
+      "path": "frontend/.gitkeep",
+      "size": 0,
+      "sha1": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
+      "content": ""
     }
   ]
 }
