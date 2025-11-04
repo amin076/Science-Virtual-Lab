@@ -3,7 +3,7 @@ config.py — centralized configuration for Science Virtual Lab backend.
 All environment variables and project settings are defined here.
 """
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from typing import List
 
 class Settings(BaseSettings):
