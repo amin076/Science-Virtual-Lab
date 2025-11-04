@@ -1,0 +1,13 @@
+# .gitignore
+node_modules/
+__pycache__/
+.venv/
+.mypy_cache/
+.pytest_cache/
+.env
+.env.*
+*.pyc
+*.log
+dist/
+build/
+coverage/
