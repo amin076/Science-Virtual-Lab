@@ -6,8 +6,7 @@ Creates and configures the FastAPI application instance.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings  # our config file
-from app.api.routes import health, simulations  # routes (will add simulations later)
-
+from app.api.routes import health
 # Create the FastAPI app
 app = FastAPI(
     title=settings.PROJECT_NAME,
